@@ -6,11 +6,39 @@ from matplotlib.backends.backend_tkagg import (
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 
-f = open("data.txt", "r")
-contents = f.read()
-data = contents.split(",")
-data = list(map(int,data))
-sample_count = list(range(len(data)))
+import re
+
+f = open("data2.txt", "r")
+title = f.readline()
+contents = f.readlines()[1:]
+
+# COUNT SAMPLES
+sample_count = 0
+for line in contents:
+    sample_count += 1
+
+# REMOVE RUBBISH FROM DATA
+line = re.split('\t|,', contents[0].strip("\n").strip(')').replace('(', ''))
+step = float(line[0])
+
+# LOOK FOR SPECIAL CHARRACTERS AND UNITS
+val1 = line[1]
+if 'dB' in val1:
+    val1_unit = 'dB'
+    val1 = val1.strip('dB')
+    val1 = float(val1)
+
+val2 = line[2]
+if 'ďż˝' in val2:
+    val2 = float(val2.strip('ďż˝'))
+
+
+
+print(title)
+print(step)
+print(val1)
+print(val2)
+
 f.close()
 
 fig = Figure(figsize=(5, 4), dpi=100)

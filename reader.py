@@ -9,16 +9,40 @@ from matplotlib.figure import Figure
 import re
 
 f = open("data2.txt", "r")
-title = f.readline()
+title = f.readline(0)
 contents = f.readlines()[1:]
 
+line2 = {}
+step2 = {}
+val21 = {}
+val22 = {}
 # COUNT SAMPLES
 sample_count = 0
 for line in contents:
-    sample_count += 1
+    line2[sample_count] = re.split('\t|,', contents[sample_count].strip("\n").strip(')').replace('(', ''))
+    step2[sample_count] = line2[sample_count][0]
+    val21[sample_count] = line2[sample_count][1]
+    val22[sample_count] = line2[sample_count][2]
+    
+    if 'dB' in val21[sample_count]:
+        val21_unit = 'dB'
+        val21[sample_count] = val21[sample_count].strip('dB')
+        val21[sample_count] = float(val21[sample_count])
 
+    val22[sample_count] = line2[sample_count][2]
+    if 'ďż˝' in val22[sample_count]:
+        val22[sample_count] = float(val22[sample_count].strip('ďż˝'))
+
+    # print(val21[sample_count])
+
+    sample_count += 1
+    
+print(val21)
+print(val22)
+
+print(line2)
 # REMOVE RUBBISH FROM DATA
-line = re.split('\t|,', contents[0].strip("\n").strip(')').replace('(', ''))
+line = re.split('\t|,', contents[1].strip("\n").strip(')').replace('(', ''))
 step = float(line[0])
 
 # LOOK FOR SPECIAL CHARRACTERS AND UNITS
@@ -31,8 +55,6 @@ if 'dB' in val1:
 val2 = line[2]
 if 'ďż˝' in val2:
     val2 = float(val2.strip('ďż˝'))
-
-
 
 print(title)
 print(step)

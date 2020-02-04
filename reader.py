@@ -7,8 +7,9 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 
 import re
+import numpy as np
 
-f = open("data2.txt", "r")
+f = open("data1.txt", "r")
 title = f.readline(0)
 contents = f.readlines()[1:]
 
@@ -20,7 +21,7 @@ val22 = {}
 sample_count = 0
 for line in contents:
     line2[sample_count] = re.split('\t|,', contents[sample_count].strip("\n").strip(')').replace('(', ''))
-    step2[sample_count] = line2[sample_count][0]
+    step2[sample_count] = float(line2[sample_count][0])
     val21[sample_count] = line2[sample_count][1]
     val22[sample_count] = line2[sample_count][2]
     
@@ -36,7 +37,10 @@ for line in contents:
     # print(val21[sample_count])
 
     sample_count += 1
-    
+
+step2 = np.asarray(step2)
+val21 = np.asarray(val21)
+val22 = np.asarray(val22)
 print(val21)
 print(val22)
 

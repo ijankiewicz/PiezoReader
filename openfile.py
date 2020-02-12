@@ -31,9 +31,12 @@ class App(object):
         button.pack(pady = 10)
 
     def open_file(self):
-        # file = askopenfile(mode = "r", initialdir = "/",title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
-        content = self.text.get("1.0", tk.END).splitlines()
-        print(content)
+        filename = askopenfile(mode = "r", initialdir = "/",title = "Select file",filetypes = (("text files","*.txt"),("all files","*.*")))
+
+        if filename:
+            with open(filename, "r", -1, "utf-8") as file:
+                self.text.delete(1.0, tk.END)
+                self.text.insert(tk.END, file.read())
 
 
 app = App()

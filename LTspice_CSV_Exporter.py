@@ -15,7 +15,7 @@ class Application:
         self.window = tk.Tk()
         self.window.geometry("400x30")
         self.window.resizable(0, 0)
-        self.window.title("LTspice text data to .csv converter v1.0")
+        self.window.title("LTspice CSV Exporter v1.0")
 
         # Create button
         openButton = tk.Button(self.window,text='Open', command = self.open_file)

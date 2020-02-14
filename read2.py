@@ -1,18 +1,21 @@
 import tkinter as tk
 from tkinter import filedialog as fd
-
 import re
-
 import numpy as np
-
 import os
 import pathlib
+
+from collections import namedtuple
 
 class Application:
     def __init__(self):
         self.window = tk.Tk()
-        self.window.geometry("500x500")
-        self.window.title("Notatnik")
+        self.window.geometry("100x100")
+        self.window.title("LTspice text data to .csv")
+
+        # Create buttons
+
+        openButton = tk.Button()
 
         # tworzenie menu
 
@@ -53,14 +56,7 @@ class Application:
             print("Output file has been created")
         # clear output file contents before next write sequence
         open('output.csv', 'w').close()
-        # with open("output.csv", "w") as file:
-        #     file.write("Your text goes here")
-        # file.close()
 
-        
-
-
-        
         if filename:
             f = open(filename, 'r')
             contents = f.readlines()[1:]
@@ -73,42 +69,33 @@ class Application:
             tot = []
             
             # COUNT SAMPLES
-            sample_count = 0
+            sampleCount = 0
             for line in contents:
                 rawLine.append("0")
                 dataStamp.append("0")
                 val21.append("0")
                 val22.append("0")
                 tot.append("0")
-                rawLine[sample_count] = re.split('\t|,', contents[sample_count].strip("\n").strip(')').replace('(', ''))
-                print(len(rawLine[0]))
-                dataStamp[sample_count] = float(rawLine[sample_count][0])
-                val21[sample_count] = rawLine[sample_count][1]
-                val22[sample_count] = rawLine[sample_count][2]
+                rawLine[sampleCount] = re.split('\t|,', contents[sampleCount].strip("\n").strip(')').replace('(', ''))
+                columnCount = len(rawLine[0])
+                rawData = []
+                rawData.append("0")
+            
+                # remove unwanted characters
+                for column in range(columnCount):
+
+                    if 'dB' in rawLine[sampleCount][column]:
+                        rawLine[sampleCount][column] = rawLine[sampleCount][column].strip('dB')
+
+                    if '°' in rawLine[sampleCount][column]:
+                        rawLine[sampleCount][column] = rawLine[sampleCount][column].strip('°')
                 
-                if 'dB' in val21[sample_count]:
-                    val21_unit = 'dB'
-                    val21[sample_count] = val21[sample_count].strip('dB')
-                    val21[sample_count] = float(val21[sample_count])
+                sampleCount += 1
 
-                val22[sample_count] = rawLine[sample_count][2]
-                if '°' in val22[sample_count]:
-                    val22[sample_count] = float(val22[sample_count].strip('°'))
+            rawLine = np.array(rawLine, dtype=float)
 
-                tot[sample_count] = [dataStamp[sample_count],val21[sample_count], val22[sample_count]]
+            np.savetxt("output.csv", rawLine, delimiter=',')
 
-                # print(tot[sample_count])
-
-                sample_count += 1
-
-            dataStamp = np.asarray(dataStamp, dtype=np.float)
-            val21 = np.asarray(val21, dtype=np.float)
-            val22 = np.asarray(val22, dtype=np.float)
-            tot = np.asarray(tot, dtype=np.float)
-
-            np.savetxt("output.csv", tot, delimiter=',')
-
-            # print(tot)
             f.close()
 
     def print_file(self):

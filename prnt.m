@@ -1,2 +1,0 @@
-x = csvread("output.csv")
-

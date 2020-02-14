@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog as fd
+from tkinter import messagebox
 import re
 import numpy as np
 import os
@@ -9,73 +10,35 @@ from collections import namedtuple
 
 class Application:
     def __init__(self):
+
+        # Set fixed geometry and the title of the main window
         self.window = tk.Tk()
-        self.window.geometry("100x100")
-        self.window.title("LTspice text data to .csv")
+        self.window.geometry("400x30")
+        self.window.resizable(0, 0)
+        self.window.title("LTspice text data to .csv converter v1.0")
 
-        # Create buttons
-
-        openButton = tk.Button()
-
-        # tworzenie menu
-
-        self.menu = tk.Menu(self.window)
-        
-        submenu = tk.Menu(self.menu, tearoff = 0)
-        self.menu.add_cascade(label = "Plik", menu = submenu)
-        
-        submenu.add_command(label = "Otwórz", command = self.open_file)
-        submenu.add_command(label = "Zapisz", command = self.save_file)
-        
-        self.window.config(menu = self.menu, width = 50, height = 30)
-
-        # dodawanie kontrolki typu Text i paska przewijania
-        
-        self.text = tk.Text(self.window)
-        
-        self.sb_text = tk.Scrollbar(self.window)
-        self.sb_text.place(in_ = self.text, relx = 1., rely = 0, relheight = 1.)
-        self.sb_text.config(command = self.text.yview)
-        self.text.config(yscrollcommand = self.sb_text.set)
-        
-        self.text.place(x = 0, y = 0, relwidth = 1, relheight = 1, width = - 18)
-        
+        # Create button
+        openButton = tk.Button(self.window,text='Open', command = self.open_file)
+        openButton.grid(column=0,row=0)
+        openButton.pack()
+ 
         self.window.mainloop()
 
     def open_file(self):
-        # invoke "Oppen FIle" dialog window
-        filename = fd.askopenfilename(filetypes=[("Plik tekstowy","*.txt")])
-        # determine the output file
-        outputFile = pathlib.Path("output.csv")
-        # check if the output file already exists. If not, create it first
-        if outputFile.exists():
-            pass
-        else:
-            THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-            os.path.join(THIS_FOLDER, 'output.csv')
-            print("Output file has been created")
-        # clear output file contents before next write sequence
-        open('output.csv', 'w').close()
+        # invoke "Open File" dialog window
+        filename = fd.askopenfilename(filetypes=[("Text file","*.txt")])
 
         if filename:
+
             f = open(filename, 'r')
             contents = f.readlines()[1:]
-            title = contents[0].strip()
 
             rawLine = []
-            dataStamp = []
-            val21 = []
-            val22 = []
-            tot = []
             
             # COUNT SAMPLES
             sampleCount = 0
             for line in contents:
                 rawLine.append("0")
-                dataStamp.append("0")
-                val21.append("0")
-                val22.append("0")
-                tot.append("0")
                 rawLine[sampleCount] = re.split('\t|,', contents[sampleCount].strip("\n").strip(')').replace('(', ''))
                 columnCount = len(rawLine[0])
                 rawData = []
@@ -94,17 +57,26 @@ class Application:
 
             rawLine = np.array(rawLine, dtype=float)
 
-            np.savetxt("output.csv", rawLine, delimiter=',')
+            np.savetxt("temp.csv", rawLine, delimiter=',')
+            os.system("attrib +h temp.csv")
 
             f.close()
+            self.saveFile()
+            self.openButtonClicked()
 
-    def print_file(self):
-        f = open(self.open_file, "rw+")
-        line = f.readline()
-        print(line)
+    def openButtonClicked(self):
+        messagebox.showinfo('Info', 'Data has been converted')
 
-            
-    def save_file(self):
-        filename = fd.asksaveasfilename(filetypes=[("Plik tekstowy","*.txt")], defaultextension = "*.txt") # wywołanie okna dialogowego save file
+    def saveFile(self):
+            filename = fd.asksaveasfilename(filetypes=[("Comma-separated values file","*.csv")], defaultextension = "*.csv") # wywołanie okna dialogowego save file
+            f = open("temp.csv", "r")
+            data = f.read()
+            if filename:
+                with open(filename, "w") as file:
+                    file.write(data)
+            f.close()
+            os.remove("temp.csv")
+
+
 
 apl = Application()
